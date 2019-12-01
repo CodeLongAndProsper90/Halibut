@@ -1,7 +1,11 @@
 .PHONY: update
 .PHONY: test
+.PHONY: install
 update:
-	cp ~/bro/*.py /usr/share/sd9-browser
-	cp ~/bro/config /usr/share/sd9-browser
+	cp *.py /usr/lib/pike
+	cp config /usr/lib/pike
 test:
-	python2 main.py
+	python3 main.py
+install:
+	mkdir /usr/lib/pike
+	cp *.py /usr/lib/pike
