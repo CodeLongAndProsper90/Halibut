@@ -1,11 +1,18 @@
 .PHONY: update
 .PHONY: test
 .PHONY: install
+	
 update:
-	cp *.py /usr/lib/pike
-	cp config /usr/lib/pike
+	rm -r  __pycache__
+	cp * /usr/lib/halibut
+
 test:
 	python3 main.py
 install:
-	mkdir /usr/lib/pike
-	cp *.py /usr/lib/pike
+	gcc halibut.c -o halibut
+	rm -r /usr/lib/halibut
+	mkdir /usr/lib/halibut
+	python3 conf.py
+	cp *.py /usr/lib/halibut
+	mv halibut /usr/bin
+	cp config /usr/lib/halibut

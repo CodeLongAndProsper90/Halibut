@@ -12,13 +12,15 @@ def ramr(filename, line):
 def rr(filename):
     fi = open(filename, 'r')
     l = fi.read()
-    l = l.replace('\n',';\n')
     l = l.split('\n')
     return l
 def get_pkg_attr(attr, filename):
     reg = rr(filename)
     i=0
-    reg.remove('')
+    try:
+        reg.remove('')
+    except:
+        print(end='')
     indices = []
     for i, elem in enumerate(reg):
         if attr  in elem:

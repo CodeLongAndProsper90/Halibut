@@ -1,5 +1,5 @@
 
-#!/usr/bin/env python3
+#!/usr/bin/python3
 import gi.repository
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit','3.0')
@@ -21,24 +21,43 @@ class browser_win():
         # Create navigation bar
         self.navigation_bar = Gtk.HBox()
 
-        self.back = Gtk.ToolButton(Gtk.STOCK_GO_BACK)
-        self.forward = Gtk.ToolButton(Gtk.STOCK_GO_FORWARD)
-        self.refresh = Gtk.ToolButton(Gtk.STOCK_REFRESH)
-        self.home = Gtk.ToolButton(Gtk.STOCK_HOME)
-        self.search = Gtk.ToolButton(Gtk.STOCK_FIND)
+        self.backimg = Gtk.Image.new_from_file("back.png") #Make back icon
+        self.back = Gtk.ToolButton() # Make back button
+        self.back.set_icon_widget(self.backimg) # Bind the two
+
+        self.fowardimg = Gtk.Image.new_from_file("foward.png")
+        self.forward = Gtk.ToolButton()
+        self.forward.set_icon_widget(self.fowardimg)
+        
+        self.refreshimg = Gtk.Image.new_from_file("reload.png")
+        self.refresh = Gtk.ToolButton()
+        self.refresh.set_icon_widget(self.refreshimg)
+
+        self.homeimg =  Gtk.Image.new_from_file("home.png")
+        self.home = Gtk.ToolButton()
+        self.home.set_icon_widget(self.homeimg)
+
+        self.searchimg = Gtk.Image.new_from_file("search.png")
+        self.search = Gtk.ToolButton()
+        self.search.set_icon_widget(self.searchimg)
+
         self.address_bar = Gtk.Entry()
+        self.spinner= Gtk.Spinner()
 
         self.back.connect('clicked', self.go_back)
         self.forward.connect('clicked', self.go_forward)
         self.refresh.connect('clicked', self.refresh_page)
         self.home.connect('clicked', self.go_home)
+        self.search.connect('clicked',self.search_web)  
         self.address_bar.connect('activate', self.load_page)
 
-        self.navigation_bar.pack_start(self.back, False, False, 0)
-        self.navigation_bar.pack_start(self.forward,False,False,0)
-        self.navigation_bar.pack_start(self.refresh,False,False,0)
-        self.navigation_bar.pack_start(self.home,False,False,0)
-        self.navigation_bar.pack_start(self.address_bar,False,False,0)
+        self.navigation_bar.pack_start(self.back, False, False,  0)
+        self.navigation_bar.pack_start(self.forward, False, False, 0)
+        self.navigation_bar.pack_start(self.refresh, False, False, 0)
+        self.navigation_bar.pack_start(self.home, False, False, 0)
+        self.navigation_bar.pack_start(self.search, False, False, 0)
+        self.navigation_bar.pack_start(self.address_bar, False, False, 0)
+        self.navigation_bar.pack_start(self.spinner,False,False,0)
         
         statusIcon = Gtk.StatusIcon()
         statusIcon.set_from_file('/usr/share/sd9-browser/icon.png')
@@ -52,8 +71,8 @@ class browser_win():
         self.webview.open(last_page)
         self.webview.connect('title-changed', self.change_title)
         self.webview.connect('load-committed', self.change_url)
-        self.webview.connect('download-requested', self.download_requested)
-        self.webview.connect('mime-type-policy-decision-requested', self.policy_decision_requested)
+        #  self.webview.connect('download-requested', self.download_requested)
+        #  self.webview.connect('mime-type-policy-decision-requested', self.policy_decision_requested)
         self.view.add(self.webview)
         # Add everything and initialize
         self.container = Gtk.VBox()
@@ -67,16 +86,24 @@ class browser_win():
 
     def load_page(self, widget):
         address = self.address_bar.get_text()
+        self.window.set_title(f'Loading: {address}')
         if address.startswith('s='):
+            
+            
             address= address.replace('s=','',1)
             address = 'https://google.com/search?q=' + address.replace(' ', '%20')
             self.webview.open(address)
         elif address.startswith('http://') or address.startswith('https://'):
+                  
             self.webview.open(address)
         else:
-            address = 'http://' + address
+            
+           
+            address = 'https://' + address
             self.address_bar.set_text(address)
+    
             self.webview.open(address)
+
     def change_title(self, widget, frame, title):
         self.window.set_title(title)
     def change_url(self, widget, frame):
@@ -95,26 +122,32 @@ class browser_win():
         from parse import get_pkg_attr
         try:
             hometxt = get_pkg_attr('home: ','config')
+            print(hometxt)
         except:
             hometxt='https://google.com'
         self.address_bar.set_text(hometxt)
         self.load_page(widget)
 
-    def policy_decision_requested(self, view, frame, request, mimetype, policy_decision):
-        if mimetype != 'text/html':
-            policy_decision.download()
-            return True
-
-    def download_requested(self, view, download):
-        import os
-        import urllib
-        name = download.get_suggested_filename()
-        path = '~/Downloads'
-        urllib.request.urlretrieve(download.get_uri(), path)  # urllib.request.urlretrieve
-        return False
+    #  def policy_decision_requested(self, view, frame, request, mimetype, policy_decision):
+        #  if mimetype != 'text/html':
+            #  policy_decision.download()
+            #  return True
+#  
+    #  def download_requested(self, view, download):
+        #  import os
+        #  import urllib
+        #  name = download.get_suggested_filename()
+        #  path = '~/Downloads'
+        #  urllib.request.urlretrieve(download.get_uri(), path)  # urllib.request.urlretrieve
+        #  return False
+    def search_web(self, widget):
+            
+        address = self.address_bar.get_text()
+        address = 'https://google.com/search?q=' + address.replace(' ', '%20') 
+        self.webview.open(address)
     def close(self,widget):
         addr = self.address_bar.get_text()
-        parse.set_pkg_attrs('last: ','addr','conf')
+        parse.set_pkg_attr('last: ','addr','config')
         Gtk.main_quit()
         exit()
 wow = browser_win()
