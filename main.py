@@ -24,45 +24,47 @@ class browser_win():
         self.backimg = Gtk.Image.new_from_file("back.png") #Make back icon
         self.back = Gtk.ToolButton() # Make back button
         self.back.set_icon_widget(self.backimg) # Bind the two
-
+        
+        #  make the foward button
         self.fowardimg = Gtk.Image.new_from_file("foward.png")
         self.forward = Gtk.ToolButton()
         self.forward.set_icon_widget(self.fowardimg)
-        
+       
+        #  Make the reload button
         self.refreshimg = Gtk.Image.new_from_file("reload.png")
         self.refresh = Gtk.ToolButton()
         self.refresh.set_icon_widget(self.refreshimg)
 
+        #  Make the home button 
         self.homeimg =  Gtk.Image.new_from_file("home.png")
         self.home = Gtk.ToolButton()
         self.home.set_icon_widget(self.homeimg)
-
+        
+        #  Make the search button
         self.searchimg = Gtk.Image.new_from_file("search.png")
         self.search = Gtk.ToolButton()
         self.search.set_icon_widget(self.searchimg)
 
+        #  Make the address bar that you type the url in
         self.address_bar = Gtk.Entry()
-        self.spinner= Gtk.Spinner()
 
+        #  Connect the buttons to their respective functions
         self.back.connect('clicked', self.go_back)
         self.forward.connect('clicked', self.go_forward)
         self.refresh.connect('clicked', self.refresh_page)
         self.home.connect('clicked', self.go_home)
         self.search.connect('clicked',self.search_web)  
         self.address_bar.connect('activate', self.load_page)
-
+        
+        #  Load the buttons into the app
+        
         self.navigation_bar.pack_start(self.back, False, False,  0)
         self.navigation_bar.pack_start(self.forward, False, False, 0)
         self.navigation_bar.pack_start(self.refresh, False, False, 0)
         self.navigation_bar.pack_start(self.home, False, False, 0)
         self.navigation_bar.pack_start(self.search, False, False, 0)
         self.navigation_bar.pack_start(self.address_bar, False, False, 0)
-        self.navigation_bar.pack_start(self.spinner,False,False,0)
         
-        statusIcon = Gtk.StatusIcon()
-        statusIcon.set_from_file('/usr/share/sd9-browser/icon.png')
-        statusIcon.set_visible(True)
-
 
         # Create view for webpage
         self.view = Gtk.ScrolledWindow()
@@ -83,8 +85,8 @@ class browser_win():
         self.window.set_default_size(800,600)
         self.window.show_all()
         Gtk.main()
-
-    def load_page(self, widget):
+#  End auto-run code!
+      def load_page(self, widget): #Handles loading of http and https webpages. Search_web handles google queires
         address = self.address_bar.get_text()
         self.window.set_title(f'Loading: {address}')
         if address.startswith('s='):

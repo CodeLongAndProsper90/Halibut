@@ -1,6 +1,7 @@
 .PHONY: update
 .PHONY: test
 .PHONY: install
+.PHONY: edit
 	
 update:
 	rm -r  __pycache__
@@ -16,3 +17,5 @@ install:
 	cp *.py /usr/lib/halibut
 	mv halibut /usr/bin
 	cp config /usr/lib/halibut
+edit:
+	vim main.py
