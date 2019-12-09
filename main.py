@@ -47,6 +47,7 @@ class browser_win():
 
         #  Make the address bar that you type the url in
         self.address_bar = Gtk.Entry()
+        self.address_bar.set_property("width-request", 100) # Define default sive
 
         #  Connect the buttons to their respective functions
         self.back.connect('clicked', self.go_back)
