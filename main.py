@@ -70,7 +70,7 @@ class browser_win():
         self.view = Gtk.ScrolledWindow()
         self.webview = WebKit.WebView()
         last_page=parse.get_pkg_attr('last: ','config')
-        self.webview.open(last_page)
+        self.webview.load_uri(last_page)
         self.webview.connect('title-changed', self.change_title)
         self.webview.connect('load-committed', self.change_url)
         #  self.webview.connect('download-requested', self.download_requested)
@@ -84,27 +84,31 @@ class browser_win():
         self.window.add(self.container)
         self.window.set_default_size(800,600)
         self.window.show_all()
-        Gtk.main()
-#  End auto-run code!
-      def load_page(self, widget): #Handles loading of http and https webpages. Search_web handles google queires
+        try:
+            Gtk.main()
+        except KeyboardInterrupt or EOFError:
+        
+            addr = self.address_bar.get_text()
+            parse.set_pkg_attr('last: ',addr,'config')
+            Gtk.main_quit()
+            exit()
+            
+            #  End auto-run code!
+    def load_page(self, widget): #Handles loading of http and https webpages. Search_web handles google queires
         address = self.address_bar.get_text()
         self.window.set_title(f'Loading: {address}')
-        if address.startswith('s='):
-            
-            
+        if address.startswith('s='):       
+                
             address= address.replace('s=','',1)
             address = 'https://google.com/search?q=' + address.replace(' ', '%20')
             self.webview.open(address)
-        elif address.startswith('http://') or address.startswith('https://'):
-                  
+        elif address.startswith('http://') or address.startswith('https://'):              
             self.webview.open(address)
-        else:
-            
-           
+        else:   
+               
             address = 'https://' + address
             self.address_bar.set_text(address)
-    
-            self.webview.open(address)
+            self.webview.load_uri(address)
 
     def change_title(self, widget, frame, title):
         self.window.set_title(title)
@@ -142,14 +146,14 @@ class browser_win():
         #  path = '~/Downloads'
         #  urllib.request.urlretrieve(download.get_uri(), path)  # urllib.request.urlretrieve
         #  return False
-    def search_web(self, widget):
+    def search_web(self, widget): #Queries google.com for the string in the addressbar
             
         address = self.address_bar.get_text()
         address = 'https://google.com/search?q=' + address.replace(' ', '%20') 
-        self.webview.open(address)
-    def close(self,widget):
+        self.webview.load_uri(address)
+    def close(self,widget): 
         addr = self.address_bar.get_text()
-        parse.set_pkg_attr('last: ','addr','config')
+        parse.set_pkg_attr('last: ',addr,'config')
         Gtk.main_quit()
         exit()
 wow = browser_win()
