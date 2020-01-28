@@ -6,7 +6,10 @@
 - Linux - An ideal os.
 - Python3.6+
 - python3-gi
+- urllib
+- pyinstaller
+- Virtual envrioments are not supported
+
 
 Installation:
-No compliation is nessary. To install Halibut
-
+No compliation 
