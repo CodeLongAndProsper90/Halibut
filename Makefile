@@ -1,21 +1,16 @@
-.PHONY: update
 .PHONY: test
-.PHONY: install
+.PHONY: compile
 .PHONY: edit
 	
-update:
-	rm -r  __pycache__
-	cp * /usr/lib/halibut
+all: compile
 
 test:
 	python3 main.py
-install:
-	gcc halibut.c -o halibut
-	rm -r /usr/lib/halibut
-	mkdir /usr/lib/halibut
-	python3 conf.py
-	cp *.py /usr/lib/halibut
-	mv halibut /usr/bin
-	cp config /usr/lib/halibut
+compile:
+	pyinstaller --name  halibut \
+	  --add-data='./assets:./assets'\
+	  --add-data='./parse.py:./parse.py' \
+	  --onefile \
+	  main.py
 edit:
 	vim main.py

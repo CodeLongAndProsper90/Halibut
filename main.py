@@ -3,15 +3,18 @@
 import gi.repository
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit2','4.0')
-from gi.repository import Gtk, WebKit2
+from gi.repository import Gtk, WebKit2, Gdk, GdkPixbuf, GLib
 import parse
+from sys import exit
+import time
 """
 A simple web browser.
 Based off of:
 https://brobin.me/blog/2014/07/how-to-make-your-own-web-browser-in-python/
 Created 11/28/19 (Thanksgiving!)
 assets/nexttab.png, assets/tabback.png Icon made by Flatpik from www.flaticon.com
-assets/close.png made by Vectors Market www.flaticon.com
+assets/close.png made by Vectors Market from www.flaticon.com
+assets/loading.png Icons made by Pixel perfect from www.flaticon.com
 """
 class browser_win():
 
@@ -62,11 +65,15 @@ class browser_win():
         self.closetabimg = Gtk.Image.new_from_file('assets/close.png')
         self.closetab = Gtk.ToolButton()
         self.closetab.set_icon_widget(self.closetabimg)
-
+        
+        pixbufAn = GdkPixbuf.PixbufAnimation.new_from_file("assets/loading.gif")
+        self.loadimg = Gtk.Image()
+        self.loadimg.set_from_animation(pixbufAn)
         #  Make the address bar that you type the url in
         
         self.tablbl = Gtk.Label()
         self.address_bar = Gtk.Entry()
+        self.spinner = Gtk.Spinner()
         self.address_bar.set_property("width-request", 100) # Define default sive
 
         #  Connect the buttons to their respective functions
@@ -89,8 +96,8 @@ class browser_win():
         self.navigation_bar.pack_start(self.home, False, False, 0)
         self.navigation_bar.pack_start(self.search, False, False, 0)
         self.navigation_bar.pack_start(self.address_bar, False, False, 0)
-        self.navigation_bar.pack_start(self.closetab, False, False, 0)
-        
+        self.navigation_bar.pack_start(self.spinner, False, False, 0)
+
         self.navigation_bar.pack_start(self.lasttab, False, False, 0)
         
         self.navigation_bar.pack_start(self.closetab, False, False, 0)
@@ -98,6 +105,7 @@ class browser_win():
         self.navigation_bar.pack_start(self.nexttab, False, False, 0)
         
         self.navigation_bar.pack_start(self.tablbl, False, False, 0)
+        self.navigation_bar.pack_start(self.loadimg, False, False, 0)
         
         # Create view for webpage
         self.view = Gtk.ScrolledWindow()
@@ -120,6 +128,8 @@ class browser_win():
         self.tabs = ["https://google.com", "https://bing.com", "https://linux.org", 'https://copy.sh/v86']
         self.pos=0
         self.window.show_all()
+        self.loadimg.hide()
+        
         try:
             Gtk.main()
         except KeyboardInterrupt or EOFError:
@@ -131,6 +141,7 @@ class browser_win():
             
             #  End auto-run code!
     def load_page(self, widget): #Handles loading of http and https webpages. Search_web handles google queires
+        self.loadimg.show()
         address = self.address_bar.get_text()
         self.window.set_title(f'Loading: {address}')
         if address.startswith('s='):       
@@ -145,7 +156,8 @@ class browser_win():
             address = 'https://' + address
             self.address_bar.set_text(address)
             self.webview.load_uri(address)
-
+        GLib.timeout_add(1000, lambda: self.loadimg.hide() , lambda: print('', end=''))
+        self.loadimg.hide()
     def change_title(self, widget, frame, title):
         self.window.set_title(title)
     def change_url(self, widget, frame):
@@ -193,26 +205,30 @@ class browser_win():
         Gtk.main_quit()
         exit()
     def next_tab(self, widget):
-      self.pos+=1
-      if self.pos-1 > len(self.tabs)-1:
+      print(f"self.pos: {self.pos}; self.tabs: {self.tabs}; len(self.tabs): {len(self.tabs)}")
+      if self.pos >= len(self.tabs):
         self.tabs.append(self.homeloc)
-        active = self.tabs[self.pos-1]
+        active = self.tabs[self.pos]
+        print("Adding new tab...")
 
       else: 
         active = self.tabs[self.pos]
+        print("Switching tab")
       print(active)
       self.address_bar.set_text(active)
       self.load_page(None)
+      self.pos+=1
       self.tablbl.set_label(f"Tab ({self.pos}/{len(self.tabs)})")
 
     def back_tab(self, widget):
-      self.pos-=1
+      if self.pos >= 0:
+        self.pos-=1
       # if self.pos > len(self.tabs)-1:
-      active = self.tabs[self.pos]
-      print(active)
-      self.address_bar.set_text(active)
-      self.load_page(None)
-      self.tablbl.set_label(f"Tab ({self.pos}/{len(self.tabs)})")
+        active = self.tabs[self.pos]
+        print(active)
+        self.address_bar.set_text(active)
+        self.load_page(None)
+        self.tablbl.set_label(f"Tab ({self.pos}/{len(self.tabs)})")
     def close_tab(self, widget):
       print(len(self.tabs))
       if len(self.tabs) > 1:
